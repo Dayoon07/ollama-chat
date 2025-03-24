@@ -1,15 +1,19 @@
-# uvicorn api:app --reload --port 5000
-from fastapi import FastAPI, Form
+# uvicorn api:app --reload --host 0.0.0.0 --port 5000
+from fastapi import FastAPI, Form, Depends
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import ollama
+from sqlalchemy.orm import Session
+from models import User
+from database import engine, get_db
 
 app = FastAPI()
+e = engine
 
 origins = [
-    "http://localhost",  # 허용할 도메인
-    "http://localhost:3000",  # React 개발 서버
-    "http://localhost:9000"
+    "http://localhost"
+    "http://localhost:9000",
+    "http://localhost:9000/ollamachat"
 ]
 
 app.add_middleware(
@@ -41,5 +45,15 @@ async def chat(message: str = Form(...)):
         ]
     )
 
-    # 서버 응답
     return JSONResponse(content={'response': res['message']['content']})
+
+
+@app.get("/users")
+def get_users(db: Session = Depends(get_db)):
+    users = db.query(User).all()  # 모든 사용자 조회
+    return JSONResponse(content={"users": [{"id": u.id, "username": u.username, "useremail": u.useremail} for u in users]})
+
+
+@app.get("/maria")
+def maria():
+    return {"message": "MariaDB 연결 성공"}
