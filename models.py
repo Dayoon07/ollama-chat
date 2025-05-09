@@ -4,7 +4,6 @@ from sqlalchemy.sql import func
 
 from database import Base
 
-# DB 테이블 정의
 class User(Base):
     __tablename__ = "users"
 
@@ -13,4 +12,3 @@ class User(Base):
     useremail = Column(String(100), nullable=True)
     password = Column(String(50), nullable=True)
     bio = Column(Text)
-    
